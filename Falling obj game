@@ -1,0 +1,70 @@
+import tkinter as tk
+import random
+
+# 1. Setup the window and canvas
+window = tk.Tk()
+window.title("Catch the Falling Objects")
+
+canvas = tk.Canvas(window, width=500, height=600, bg="#A0E7E5")
+canvas.pack()
+
+# 2. Game variables
+score = 0
+speed = 5
+
+# 3. Create game shapes (Basket and Ball)
+# Basket coordinates: x1=200, y1=550, x2=300, y2=570
+basket = canvas.create_rectangle(200, 550, 300, 570, fill="#6C3483")
+# Ball starts at the top
+ball = canvas.create_oval(235, 0, 265, 30, fill="#E74C3C")
+# Score text on screen
+score_text = canvas.create_text(50, 20, text="Score: 0", font=("Arial", 14), fill="black")
+
+# 4. Functions for moving the basket
+def move_left(event):
+    coords = canvas.coords(basket)
+    if coords[0] > 0: # Check left wall boundary
+        canvas.move(basket, -20, 0)
+
+def move_right(event):
+    coords = canvas.coords(basket)
+    if coords[2] < 500: # Check right wall boundary
+        canvas.move(basket, 20, 0)
+
+# Bind keyboard arrow keys to the movement functions
+window.bind("<Left>", move_left)
+window.bind("<Right>", move_right)
+
+# 5. Main Game Loop (Animation & Collision)
+def game_loop():
+    global score
+    
+    # Move the ball down
+    canvas.move(ball, 0, speed)
+    
+    # Get current positions
+    ball_coords = canvas.coords(ball)
+    basket_coords = canvas.coords(basket)
+    
+    # Check if ball hits the bottom of the screen (Missed)
+    if ball_coords[3] > 600:
+        # Reset ball to the top at a random X position
+        new_x = random.randint(10, 460)
+        canvas.coords(ball, new_x, 0, new_x + 30, 30)
+        
+    # Check collision (If ball touches the basket)
+    elif ball_coords[3] >= basket_coords[1]: # Ball reaches basket height
+        # Check if ball is horizontally between the left and right sides of the basket
+        if ball_coords[2] >= basket_coords[0] and ball_coords[0] <= basket_coords[2]:
+            score += 1
+            canvas.itemconfig(score_text, text=f"Score: {score}")
+            # Reset ball to the top
+            new_x = random.randint(10, 460)
+            canvas.coords(ball, new_x, 0, new_x + 30, 30)
+
+    # Repeat this loop function every 20 milliseconds
+    window.after(20, game_loop)
+
+# Start the game loop
+game_loop()
+window.mainloop()
