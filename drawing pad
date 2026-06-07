@@ -1,0 +1,49 @@
+# Drawing Pad using Tkinter
+
+from tkinter import *
+
+# Create main window
+root = Tk()
+root.title("Drawing Pad")
+root.geometry("800x600")
+
+# Create canvas
+canvas = Canvas(root, bg="white", width=800, height=600)
+canvas.pack(fill=BOTH, expand=True)
+
+# Variables to store previous mouse position
+last_x, last_y = None, None
+
+# Function to start drawing
+def start_draw(event):
+    global last_x, last_y
+    last_x, last_y = event.x, event.y
+
+# Function to draw on canvas
+def draw(event):
+    global last_x, last_y
+
+    if last_x is not None and last_y is not None:
+        canvas.create_line(
+            last_x, last_y,
+            event.x, event.y,
+            fill="black",
+            width=2,
+            capstyle=ROUND,
+            smooth=True
+        )
+
+    last_x, last_y = event.x, event.y
+
+# Function to stop drawing
+def stop_draw(event):
+    global last_x, last_y
+    last_x, last_y = None, None
+
+# Bind mouse events
+canvas.bind("<Button-1>", start_draw)      # Left mouse button pressed
+canvas.bind("<B1-Motion>", draw)           # Mouse movement with button held
+canvas.bind("<ButtonRelease-1>", stop_draw) # Left mouse button released
+
+# Run application
+root.mainloop()
